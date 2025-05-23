@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MATH CLICKER – 無限因数工場</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>body{font-family:sans-serif}</style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center pt-8 gap-6">
+
+<h1 class="text-2xl font-bold">MATH CLICKER <span class="text-sm font-normal">(β)</span></h1>
+
+<!-- カウンター類 -->
+<div id="counter" class="text-4xl font-bold">0</div>
+<div id="cps" class="text-sm mb-4 text-gray-700">自動 +0 / 秒</div>
+
+<!-- クリックボタン -->
+<button id="clickBtn"
+  class="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-lg shadow">
+  クリックして数を増やす！
+</button>
+
+<!-- 工場リスト -->
+<h2 class="text-lg font-semibold mt-8">Unlocked Factories</h2>
+<ul id="factoryList" class="space-y-2 text-gray-800"></ul>
+
+<!-- パズルモーダル -->
+<div id="puzzleModal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center">
+  <div class="bg-white rounded-xl p-6 w-80 shadow-xl">
+    <h2 class="font-bold text-lg mb-3">MATH PUZZLE</h2>
+    <p id="puzzleQ" class="mb-2"></p>
+
+    <div class="flex gap-2 mb-3">
+      <input id="factorInput" type="text"
+        class="flex-1 border rounded px-2 py-1" placeholder="因数を入力">
+      <button id="addBtn"
+        class="px-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded">追加</button>
+    </div>
+
+    <div id="factorTags" class="flex flex-wrap gap-2 mb-4"></div>
+
+    <button id="confirmBtn"
+      class="w-full px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded">
+      確定
+    </button>
+    <p id="puzzleMsg" class="mt-3 font-bold"></p>
+  </div>
+</div>
+
+<script>
+/* ---------- ゲーム状態 ---------- */
+let value = 0;          // 現在値
+let cps   = 0;          // 自動加算 cps
+const counter = document.getElementById('counter');
+const cpsDisp = document.getElementById('cps');
+
+/* ---------- 工場定義 (shown フラグ追加) ---------- */
+const factories = [
+  {th:  50,  name:'×2 ベルトコンベア', puzzle:{q:'12 を素因数分解せよ', ans:'2×2×3'},   gain: 1, unlocked:false, shown:false},
+  {th: 500,  name:'×3 蒸着炉',        puzzle:{q:'18 を素因数分解せよ', ans:'2×3×3'},   gain: 5, unlocked:false, shown:false},
+  {th: 5000, name:'×5 量子粉砕機',    puzzle:{q:'60 を素因数分解せよ', ans:'2×2×3×5'}, gain:20, unlocked:false, shown:false}
+];
+
+/* ---------- 表示更新 ---------- */
+function render() {
+  counter.textContent = value.toLocaleString();
+  cpsDisp.textContent = `自動 +${cps} / 秒`;
+}
+
+/* ---------- クリック処理 ---------- */
+document.getElementById('clickBtn').onclick = () => {
+  value++;
+  checkUnlocks();
+  render();
+};
+
+/* ---------- 自動加算ループ ---------- */
+setInterval(() => {
+  value += cps;
+  checkUnlocks();
+  render();
+}, 1000);
+
+/* ---------- アンロック判定 (shown で 1度だけ表示) ---------- */
+function checkUnlocks() {
+  factories.forEach(f => {
+    if (!f.unlocked && !f.shown && value >= f.th) {
+      f.shown = true;          // モーダルを開いた印
+      openPuzzle(f);
+    }
+  });
+}
+
+/* ---------- 工場リストに追加 ---------- */
+function addFactoryToList(f) {
+  const li = document.createElement('li');
+  li.textContent = `✅ ${f.name}（+${f.gain}/秒）`;
+  document.getElementById('factoryList').appendChild(li);
+}
+
+/* ================================================= */
+/* ===          ▼▼ パズル入力関連 ▼▼            === */
+/* ================================================= */
+const modal   = document.getElementById('puzzleModal');
+const qEl     = document.getElementById('puzzleQ');
+const tagsDiv = document.getElementById('factorTags');
+const inBox   = document.getElementById('factorInput');
+const addBtn  = document.getElementById('addBtn');
+const confBtn = document.getElementById('confirmBtn');
+const msgEl   = document.getElementById('puzzleMsg');
+
+let currentFactory = null;
+let entered = [];   // 入力済み因数
+
+/* ---------- モーダルを開く ---------- */
+function openPuzzle(factory) {
+  currentFactory = factory;
+  entered = [];
+  renderFactorTags();
+  msgEl.textContent = '';
+  qEl.textContent = factory.puzzle.q;
+  modal.classList.remove('hidden');
+}
+
+/* ---------- 因数追加 ---------- */
+addBtn.onclick = () => {
+  const val = inBox.value.trim();
+  if (!/^\d+$/.test(val) || Number(val) < 2) {
+    alert('2 以上の整数を入力してください');
+    return;
+  }
+  entered.push(Number(val));
+  inBox.value = '';
+  renderFactorTags();
+};
+
+/* ---------- タグ表示 ---------- */
+function renderFactorTags() {
+  tagsDiv.innerHTML = '';
+  entered.forEach((n, i) => {
+    const tag = document.createElement('span');
+    tag.textContent = n;
+    tag.title = 'クリックで削除';
+    tag.className = 'px-2 py-0.5 bg-gray-300 rounded text-sm cursor-pointer';
+    tag.onclick = () => { entered.splice(i,1); renderFactorTags(); };
+    tagsDiv.appendChild(tag);
+  });
+}
+
+/* ---------- 確定ボタン ---------- */
+confBtn.onclick = () => {
+  if (entered.length === 0) { alert('因数を入力してください'); return; }
+
+  const userArr = [...entered].sort((a,b)=>a-b);
+  const ansArr = currentFactory.puzzle.ans
+        .split(/[×x\*\s]/).filter(Boolean).map(Number).sort((a,b)=>a-b);
+
+  if (userArr.join() === ansArr.join()) {
+    modal.classList.add('hidden');
+    currentFactory.unlocked = true;
+    currentFactory.shown    = false;      // 次の工場用にリセット
+    cps += currentFactory.gain;
+    addFactoryToList(currentFactory);
+    alert(`正解！「${currentFactory.name}」が稼働開始\n自動 +${currentFactory.gain}/秒`);
+  } else {
+    msgEl.textContent = '不正解…もう一度！';
+  }
+};
+
+/* ---------- 初期描画 ---------- */
+render();
+</script>
+</body>
+</html>
