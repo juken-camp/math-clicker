@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width,
+                 initial-scale=1,
+                 maximum-scale=1,
+                 minimum-scale=1,
+                 user-scalable=no">
+  <title>🌟 MATH CLICKER 🌟</title>
+
+  <style>
+    html, body {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      overflow-x: hidden;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      position: relative;
+    }
+    
+    /* パーティクル背景 */
+    .particle {
+      position: absolute;
+      background: radial-gradient(circle, rgba(255,255,255,0.6) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); opacity: 0.5; }
+      50% { transform: translateY(-15px); opacity: 0.8; }
+    }
+    
+    /* メインタイトル */
+    .main-title {
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 20px rgba(255,255,255,0.5);
+      font-weight: 900;
+    }
+    
+    /* スコア表示 */
+    .score-display {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+      font-weight: 900;
+    }
+    
+    /* クリックボタン */
+    .mega-click-btn {
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+      border: none;
+      border-radius: 25px;
+      padding: 15px 30px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      transform: scale(1);
+      transition: all 0.2s ease;
+      box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+      position: relative;
+      overflow: hidden;
+      font-family: inherit;
+    }
+    
+    .mega-click-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 35px rgba(255, 107, 107, 0.6);
+    }
+    
+    .mega-click-btn:active {
+      transform: scale(0.98);
+    }
+    
+    .mega-click-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255,255,255,0.3);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+    
+    .mega-click-btn.clicked::before {
+      width: 300px;
+      height: 300px;
+    }
+    
+    /* 工場カード */
+    .factory-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 15px;
+      padding: 15px;
+      margin: 8px;
+      transform: translateY(20px);
+      opacity: 0;
+      animation: slideInUp 0.8s ease forwards;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+    
+    @keyframes slideInUp {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    /* フィーバーモード */
+    .fever-mode .score-display {
+      animation: feverPulse 0.5s ease-in-out infinite;
+      color: #ff4757 !important;
+    }
+    
+    @keyframes feverPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    /* 爆発エフェクト */
+    .explosion {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, #ffff00, #ff6b6b, transparent);
+      border-radius: 50%;
+      animation: explode 0.6s ease-out forwards;
+      pointer-events: none;
+    }
+    
+    @keyframes explode {
+      0% {
+        transform: scale(0);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(2.5);
+        opacity: 0;
+      }
+    }
+    
+    /* 数字飛び出しエフェクト */
+    .number-popup {
+      position: absolute;
+      font-size: 20px;
+      font-weight: bold;
+      color: #ff6b6b;
+      pointer-events: none;
+      animation: numberFly 1s ease-out forwards;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      font-family: inherit;
+    }
+    
+    @keyframes numberFly {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-80px) scale(1.3);
+        opacity: 0;
+      }
+    }
+    
+    /* タイマーバー */
+    .timer-bar {
+      width: 100%;
+      max-width: 320px;
+      height: 8px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+    
+    .timer-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+      transition: width 1s linear;
+      border-radius: 4px;
+    }
+    
+    /* モーダルアニメーション */
+    .modal-enter {
+      animation: modalSlideIn 0.5s ease-out;
+    }
+    
+    @keyframes modalSlideIn {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+    
+    input, button {
+      font-size: 16px;
+      font-family: inherit;
+    }
+    
+    /* 星キラキラエフェクト */
+    .star {
+      position: absolute;
+      color: #ffff00;
+      font-size: 18px;
+      pointer-events: none;
+      animation: starTwinkle 2s ease-in-out infinite;
+    }
+    
+    @keyframes starTwinkle {
+      0%, 100% { opacity: 0.3; transform: scale(0.5); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+
+    /* スマホ対応 */
+    @media (max-width: 640px) {
+      .main-title {
+        font-size: 1.8rem;
+      }
+      .score-display {
+        font-size: 3rem;
+      }
+      .mega-click-btn {
+        font-size: 14px;
+        padding: 12px 25px;
+      }
+      .factory-card {
+        margin: 5px;
+        padding: 12px;
+      }
+    }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col items-center pt-6 gap-4 relative">
+
+  <!-- パーティクル背景を生成 -->
+  <script>
+    for(let i = 0; i < 30; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      particle.style.width = Math.random() * 8 + 4 + 'px';
+      particle.style.height = particle.style.width;
+      particle.style.left = Math.random() * 100 + '%';
+      particle.style.top = Math.random() * 100 + '%';
+      particle.style.animationDelay = Math.random() * 6 + 's';
+      document.body.appendChild(particle);
+    }
+  </script>
+
+  <h1 class="text-3xl md:text-4xl font-bold main-title text-center px-4">🌟 MATH CLICKER 🌟</h1>
+  <div class="text-base md:text-lg text-white font-bold text-center">∞ 無限因数工場 ∞</div>
+
+  <!-- 制限時間ボタン -->
+  <div class="flex flex-wrap gap-2 items-center text-sm bg-white/20 backdrop-blur-md rounded-full px-4 py-2 border border-white/30">
+    <span class="font-bold text-white">⏱️ 制限時間:</span>
+    <button class="timeBtn px-3 py-1 bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-full font-bold hover:scale-110 transition-transform text-xs md:text-sm" data-min="1">1分</button>
+    <button class="timeBtn px-3 py-1 bg-gradient-to-r from-blue-400 to-cyan-400 text-white rounded-full font-bold hover:scale-110 transition-transform text-xs md:text-sm" data-min="3">3分</button>
+    <button class="timeBtn px-3 py-1 bg-gradient-to-r from-green-400 to-emerald-400 text-white rounded-full font-bold hover:scale-110 transition-transform text-xs md:text-sm" data-min="5">5分</button>
+    <button class="timeBtn px-3 py-1 bg-gradient-to-r from-orange-400 to-red-400 text-white rounded-full font-bold hover:scale-110 transition-transform text-xs md:text-sm" data-min="10">10分</button>
+  </div>
+
+  <!-- タイマーバー -->
+  <div class="timer-bar">
+    <div id="timerFill" class="timer-fill" style="width: 100%"></div>
+  </div>
+  <span id="timerDisp" class="text-lg md:text-xl font-bold text-white"></span>
+
+  <!-- スコア表示 -->
+  <div id="counter" class="text-5xl md:text-6xl font-bold score-display relative">0</div>
+  <div id="cps" class="text-base md:text-lg text-white font-bold bg-black/20 rounded-full px-4 py-2">🔥 自動 +0 / 秒</div>
+
+  <!-- クリックボタン -->
+  <button id="clickBtn" class="mega-click-btn relative">
+    🚀 クリックして数を増やそう！ 🚀
+  </button>
+
+  <!-- 工場リスト -->
+  <h2 class="text-xl md:text-2xl font-bold mt-6 text-white text-center">🏭 解放された工場 🏭</h2>
+  <div id="factoryList" class="space-y-2 text-white max-w-4xl w-full px-4"></div>
+
+  <!-- パズルモーダル -->
+  <div id="puzzleModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+    <div class="bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 rounded-3xl p-6 w-full max-w-md shadow-2xl modal-enter border-4 border-white/50">
+      <h2 class="font-bold text-xl md:text-2xl mb-4 text-white text-center">🧮 MATH PUZZLE 🧮</h2>
+      <p id="puzzleQ" class="mb-4 text-white text-base md:text-lg font-bold text-center bg-black/20 rounded-xl p-3"></p>
+
+      <div class="flex gap-2 mb-4">
+        <input id="factorInput" type="text"
+               class="flex-1 border-2 border-white rounded-full px-3 py-2 text-base font-bold text-center" placeholder="答えを入力">
+        <button id="addBtn"
+                class="px-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-full font-bold transition-all hover:scale-110 text-sm">✨ 追加</button>
+      </div>
+
+      <div id="factorTags" class="flex flex-wrap gap-2 mb-4 min-h-[40px] bg-white/10 rounded-xl p-3"></div>
+
+      <button id="confirmBtn"
+              class="w-full px-4 py-3 bg-gradient-to-r from-emerald-400 to-cyan-500 hover:from-emerald-500 hover:to-cyan-600 text-white rounded-full font-bold text-base transition-all hover:scale-105">
+        🎯 確定して工場をゲット！
+      </button>
+      <p id="puzzleMsg" class="mt-3 font-bold text-center text-white text-base"></p>
+    </div>
+  </div>
+
+  <script>
+    /* ---------- 状態 ---------- */
+    let value = 0, cps = 0, clickPower = 1;
+    let fever = false, gameActive = true;
+    let totalTime = 0, currentTime = 0;
+
+    /* ---------- DOM ---------- */
+    const counter   = document.getElementById('counter');
+    const cpsDisp   = document.getElementById('cps');
+    const clickBtn  = document.getElementById('clickBtn');
+    const timerDisp = document.getElementById('timerDisp');
+    const timerFill = document.getElementById('timerFill');
+
+    /* ---------- ランダム問題生成 ---------- */
+    function generateProblem(type, difficulty) {
+      switch(type) {
+        case 'factorize':
+          return generateFactorizeProblem(difficulty);
+        case 'gcd':
+          return generateGcdProblem(difficulty);
+        case 'lcm':
+          return generateLcmProblem(difficulty);
+      }
+    }
+
+    function generateFactorizeProblem(difficulty) {
+      const smallPrimes = [2, 3, 5, 7];
+      const targets = {
+        1: [12, 15, 18, 20, 21, 24, 28, 30],
+        2: [36, 40, 42, 45, 48, 54, 56, 60],
+        3: [72, 75, 80, 84, 90, 96, 100, 105],
+        4: [120, 126, 132, 135, 140, 144, 150, 156]
+      };
+      
+      const targetList = targets[difficulty] || targets[1];
+      const target = targetList[Math.floor(Math.random() * targetList.length)];
+      
+      // 素因数分解を計算
+      let n = target;
+      let factors = [];
+      for(let p of [2, 3, 5, 7, 11, 13]) {
+        while(n % p === 0) {
+          factors.push(p);
+          n /= p;
+        }
+        if(n === 1) break;
+      }
+      
+      return {
+        q: `${target} を素因数分解せよ`,
+        ans: factors.join('×'),
+        type: 'factorize'
+      };
+    }
+
+    function generateGcdProblem(difficulty) {
+      const pairs = {
+        1: [[12, 18], [15, 20], [14, 21], [16, 24], [18, 27], [20, 30]],
+        2: [[24, 36], [30, 45], [28, 42], [32, 48], [36, 54], [40, 60]],
+        3: [[48, 72], [60, 90], [56, 84], [64, 96], [72, 108], [80, 120]],
+        4: [[96, 144], [120, 180], [112, 168], [128, 192], [144, 216], [160, 240]]
+      };
+      
+      const pairList = pairs[difficulty] || pairs[1];
+      const [a, b] = pairList[Math.floor(Math.random() * pairList.length)];
+      
+      // 最大公約数を計算
+      function gcd(x, y) {
+        while(y !== 0) {
+          let temp = y;
+          y = x % y;
+          x = temp;
+        }
+        return x;
+      }
+      
+      return {
+        q: `${a} と ${b} の最大公約数を求めよ`,
+        ans: gcd(a, b).toString(),
+        type: 'gcd'
+      };
+    }
+
+    function generateLcmProblem(difficulty) {
+      const pairs = {
+        1: [[4, 6], [6, 8], [6, 9], [8, 12], [9, 12], [10, 15]],
+        2: [[12, 18], [15, 20], [14, 21], [16, 24], [18, 27], [20, 30]],
+        3: [[24, 36], [30, 45], [28, 42], [32, 48], [36, 54], [40, 60]],
+        4: [[48, 72], [60, 90], [56, 84], [64, 96], [72, 108], [80, 120]]
+      };
+      
+      const pairList = pairs[difficulty] || pairs[1];
+      const [a, b] = pairList[Math.floor(Math.random() * pairList.length)];
+      
+      // 最小公倍数を計算
+      function gcd(x, y) {
+        while(y !== 0) {
+          let temp = y;
+          y = x % y;
+          x = temp;
+        }
+        return x;
+      }
+      
+      function lcm(x, y) {
+        return (x * y) / gcd(x, y);
+      }
+      
+      return {
+        q: `${a} と ${b} の最小公倍数を求めよ`,
+        ans: lcm(a, b).toString(),
+        type: 'lcm'
+      };
+    }
+
+    /* ---------- 工場データ ---------- */
+    const factories = [
+      {th:30,    name:'🤖 ×2 ロボットベルトコンベア',   problemType:'factorize', difficulty:1, gain:2,   clickBoost:1, unlocked:false, shown:false, emoji:'🤖'},
+      {th:200,   name:'🔥 ×3 プラズマ蒸着炉',          problemType:'gcd',       difficulty:1, gain:10,  clickBoost:1, unlocked:false, shown:false, emoji:'🔥'},
+      {th:1000,  name:'⚡ ×5 量子エネルギー粉砕機',    problemType:'lcm',       difficulty:1, gain:30,  clickBoost:2, unlocked:false, shown:false, emoji:'⚡'},
+      {th:5000,  name:'🌟 ×7 宇宙超合金炉',          problemType:'factorize', difficulty:2, gain:100, clickBoost:3, unlocked:false, shown:false, emoji:'🌟'},
+      {th:20000, name:'🚀 ×11 銀河系工場',           problemType:'gcd',       difficulty:2, gain:500, clickBoost:5, unlocked:false, shown:false, emoji:'🚀'},
+      {th:100000,name:'💎 ×13 ダイヤモンド次元炉',    problemType:'lcm',       difficulty:2, gain:2000,clickBoost:10,unlocked:false, shown:false, emoji:'💎'}
+    ];
+
+    /* ---------- サウンドエフェクト ---------- */
+    function playSound(freq, duration = 100) {
+      if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined') {
+        try {
+          const audioContext = new (AudioContext || webkitAudioContext)();
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          
+          oscillator.frequency.value = freq;
+          oscillator.type = 'sine';
+          
+          gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
+          
+          oscillator.start(audioContext.currentTime);
+          oscillator.stop(audioContext.currentTime + duration / 1000);
+        } catch(e) {
+          // サウンド再生に失敗しても続行
+        }
+      }
+    }
+
+    /* ---------- エフェクト関数 ---------- */
+    function createExplosion(x, y) {
+      const explosion = document.createElement('div');
+      explosion.className = 'explosion';
+      explosion.style.left = x - 40 + 'px';
+      explosion.style.top = y - 40 + 'px';
+      document.body.appendChild(explosion);
+      setTimeout(() => explosion.remove(), 600);
+    }
+
+    function createNumberPopup(x, y, number) {
+      const popup = document.createElement('div');
+      popup.className = 'number-popup';
+      popup.textContent = '+' + number;
+      popup.style.left = x + 'px';
+      popup.style.top = y + 'px';
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 1000);
+    }
+
+    function createStars() {
+      for(let i = 0; i < 8; i++) {
+        setTimeout(() => {
+          const star = document.createElement('div');
+          star.className = 'star';
+          star.textContent = '⭐';
+          star.style.left = Math.random() * window.innerWidth + 'px';
+          star.style.top = Math.random() * window.innerHeight + 'px';
+          document.body.appendChild(star);
+          setTimeout(() => star.remove(), 2000);
+        }, i * 100);
+      }
+    }
+
+    /* ---------- 表示 ---------- */
+    function render(){
+      counter.textContent = value.toLocaleString();
+      cpsDisp.textContent = `🔥 自動 +${cps.toLocaleString()}/秒`;
+    }
+
+    /* ---------- 手動クリック ---------- */
+    clickBtn.onclick = (e) => {
+      if(!gameActive) return;
+      
+      // クリックエフェクト
+      clickBtn.classList.add('clicked');
+      setTimeout(() => clickBtn.classList.remove('clicked'), 600);
+      
+      // 爆発エフェクト
+      createExplosion(e.clientX, e.clientY);
+      
+      // 数字ポップアップ
+      createNumberPopup(e.clientX, e.clientY, clickPower);
+      
+      // サウンド
+      playSound(440 + Math.random() * 220, 150);
+      
+      value += clickPower;
+      
+      // 大きなクリックパワーの時は星エフェクト
+      if(clickPower >= 5) {
+        createStars();
+      }
+      
+      checkUnlocks(); 
+      render();
+    };
+
+    /* ---------- 自動加算ループ ---------- */
+    let loop = setInterval(() => {
+      if(!gameActive) return;
+      value += cps; 
+      checkUnlocks(); 
+      render();
+    }, 1000);
+
+    /* ---------- 制限時間ボタン ---------- */
+    document.querySelectorAll('.timeBtn').forEach(btn => {
+      btn.onclick = () => {
+        if(!gameActive) return;
+        const min = Number(btn.dataset.min);
+        totalTime = min * 60;
+        currentTime = totalTime;
+        startTimer(totalTime);
+        playSound(660, 200);
+      };
+    });
+
+    /* ---------- タイマー管理 ---------- */
+    let timerId = null, endTime = Infinity;
+    function startTimer(sec){
+      endTime = Date.now() + sec * 1000;
+      updateTimer();
+      timerId = setInterval(updateTimer, 1000);
+    }
+    
+    function updateTimer(){
+      const diff = endTime - Date.now();
+      if(diff <= 0){
+        timerDisp.textContent = '⏰ TIME UP! ⏰';
+        timerFill.style.width = '0%';
+        stopGame();
+      } else {
+        const s = Math.floor(diff/1000), m = Math.floor(s/60);
+        timerDisp.textContent = `⏰ ${String(m).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+        
+        // タイマーバーの更新
+        const progress = (diff/1000) / totalTime * 100;
+        timerFill.style.width = progress + '%';
+        
+        // 残り時間が少なくなったら警告色
+        if(progress < 20) {
+          timerFill.style.background = 'linear-gradient(90deg, #ff4757, #ff3742)';
+        }
+      }
+    }
+
+    /* ---------- ゲーム停止 ---------- */
+    function stopGame(){
+      gameActive = false;
+      clearInterval(loop);
+      clearInterval(timerId);
+      clickBtn.classList.add('opacity-40','cursor-not-allowed');
+      
+      // 最終スコア表示
+      setTimeout(() => {
+        alert(`🎉 ゲーム終了！\n最終スコア: ${value.toLocaleString()} ポイント\n\n素晴らしい数学力です！🌟`);
+      }, 1000);
+    }
+
+    /* ---------- フィーバー ---------- */
+    function feverMode(sec=8){
+      if(fever || !gameActive) return;
+      fever = true;
+      const oldClick = clickPower, oldCps = cps;
+      clickPower *= 5; cps *= 5;
+      
+      document.body.classList.add('fever-mode');
+      
+      // フィーバー音
+      for(let i = 0; i < 5; i++) {
+        setTimeout(() => playSound(880 + i * 110, 100), i * 100);
+      }
+      
+      // 大量の星エフェクト
+      createStars();
+      createStars();
+      
+      setTimeout(() => {
+        clickPower = oldClick; cps = oldCps;
+        document.body.classList.remove('fever-mode');
+        fever = false;
+      }, sec * 1000);
+    }
+
+    /* ---------- パズル関連 ---------- */
+    const modal   = document.getElementById('puzzleModal');
+    const qEl     = document.getElementById('puzzleQ');
+    const tagsDiv = document.getElementById('factorTags');
+    const inBox   = document.getElementById('factorInput');
+    const addBtn  = document.getElementById('addBtn');
+    const confBtn = document.getElementById('confirmBtn');
+    const msgEl   = document.getElementById('puzzleMsg');
+
+    let currentFactory = null, entered = [], currentProblem = null;
+
+    function openPuzzle(f){
+      currentFactory = f; 
+      entered = []; 
+      renderTags();
+      msgEl.textContent = ''; 
+      
+      // ランダム問題生成
+      currentProblem = generateProblem(f.problemType, f.difficulty);
+      qEl.textContent = currentProblem.q;
+      
+      modal.classList.remove('hidden');
+      playSound(523, 300);
+    }
+    
+    addBtn.onclick = () => {
+      const v = inBox.value.trim();
+      if(!v){
+        alert('答えを入力してください'); 
+        playSound(200, 300);
+        return;
+      }
+      
+      if(currentProblem.type === 'factorize') {
+        // 素因数分解の場合は数字のみ
+        if(!/^\d+$/.test(v) || Number(v) < 2){
+          alert('2以上の整数を入力してください'); 
+          playSound(200, 300);
+          return;
+        }
+        entered.push(Number(v));
+      } else {
+        // 最大公約数・最小公倍数の場合は数字のみ
+        if(!/^\d+$/.test(v) || Number(v) < 1){
+          alert('1以上の整数を入力してください'); 
+          playSound(200, 300);
+          return;
+        }
+        entered = [Number(v)]; // 1つの答えのみ
+      }
+      
+      inBox.value = ''; 
+      renderTags();
+      playSound(659, 100);
+    };
+    
+    function renderTags(){
+      tagsDiv.innerHTML = '';
+      entered.forEach((n,i) => {
+        const tag = document.createElement('span');
+        tag.textContent = n; 
+        tag.title = 'クリックで削除';
+        tag.className = 'px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full text-sm cursor-pointer font-bold hover:scale-110 transition-transform';
+        tag.onclick = () => { 
+          entered.splice(i,1); 
+          renderTags(); 
+          playSound(440, 100);
+        };
+        tagsDiv.appendChild(tag);
+      });
+    }
+    
+    confBtn.onclick = () => {
+      if(!entered.length){ 
+        alert('答えを入力してください'); 
+        playSound(200, 300);
+        return; 
+      }
+      
+      let isCorrect = false;
+      
+      if(currentProblem.type === 'factorize') {
+        // 素因数分解の場合
+        const userAnswer = [...entered].sort((a,b)=>a-b).join('×');
+        isCorrect = userAnswer === currentProblem.ans;
+      } else {
+        // 最大公約数・最小公倍数の場合
+        isCorrect = entered[0].toString() === currentProblem.ans;
+      }
+      
+      if(isCorrect){
+        modal.classList.add('hidden');
+        currentFactory.unlocked = true; 
+        currentFactory.shown = false;
+        cps += currentFactory.gain; 
+        clickPower += currentFactory.clickBoost;
+        addFactoryToList(currentFactory); 
+        
+        // 成功エフェクト
+        feverMode();
+        createStars();
+        createStars();
+        
+        // 成功音楽
+        const notes = [523, 659, 784, 1047]; // ドミソド
+        notes.forEach((note, i) => {
+          setTimeout(() => playSound(note, 200), i * 150);
+        });
+        
+      } else {
+        msgEl.textContent = '❌ 不正解…もう一度チャレンジ！ ❌';
+        msgEl.style.color = '#ff4757';
+        playSound(200, 500); // エラー音
+        setTimeout(() => {
+          msgEl.textContent = '';
+        }, 2000);
+      }
+    };
+
+    /* ---------- 工場リスト & アンロック ---------- */
+    function addFactoryToList(f){
+      const card = document.createElement('div');
+      card.className = 'factory-card';
+      card.innerHTML = `
+        <div class="text-center">
+          <div class="text-3xl mb-2">${f.emoji}</div>
+          <div class="text-lg font-bold text-white mb-2">✅ ${f.name}</div>
+          <div class="text-base text-yellow-300">🔥 +${f.gain.toLocaleString()}/秒 | 💪 クリック+${f.clickBoost}</div>
+        </div>
+      `;
+      document.getElementById('factoryList').appendChild(card);
+    }
+    
+    function checkUnlocks(){
+      factories.forEach(f => {
+        if(!f.unlocked && !f.shown && value >= f.th){
+          f.shown = true; 
+          
+          // アンロック演出
+          createStars();
+          playSound(784, 400); // ソ音
+          
+          setTimeout(() => openPuzzle(f), 500);
+        }
+      });
+    }
+
+    /* ---------- 初期描画 ---------- */
+    render();
+    
+    // 初期メッセージ
+    setTimeout(() => {
+      if(gameActive && value === 0) {
+        alert('🌟 MATH CLICKERへようこそ！🌟\n\nクリックして数を増やし、\n数学パズルを解いて工場をアンロックしよう！\n\n制限時間を設定してゲームスタート！🚀');
+      }
+    }, 1000);
+  </script>
+</body>
+</html>
