@@ -50,15 +50,30 @@
       font-weight: 900;
     }
     
-    /* スコア表示 */
-    .score-display {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      color: #FFFFFF;
-      text-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
-      font-weight: 900;
-    }
+/* スコア表示 */
+.score-display {
+  /* タイトルからコピーするプロパティ */
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+
+  /* text-shadowもタイトルに合わせるか、好みに応じて調整します */
+  /* タイトルと同じ影にする場合: */
+  text-shadow: 0 0 20px rgba(255,255,255,0.5);
+  /* もし影を少し控えめにしたい場合や、よりくっきりさせたい場合など、
+     以下のように調整も可能です。
+     例1: 少し控えめな白い影
+     text-shadow: 0 0 15px rgba(255,255,255,0.4);
+     例2: 黒い細い縁取りでくっきりさせる (グラデーションの色によっては不要かもしれません)
+     text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  */
+
+  font-weight: 900; /* これは元々設定されていて適切です */
+
+  /* 以前の color プロパティは不要になるので削除します */
+  /* color: #FFFFFF; */ /* ← このような直接の色指定は削除 */
+}
     
     /* クリックボタン */
     .mega-click-btn {
