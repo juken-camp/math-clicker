@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width,
+                 initial-scale=1,
+                 maximum-scale=1,
+                 minimum-scale=1,
+                 user-scalable=no">
+  <title>🌟 MATH CLICKER 🌟</title>
+
+  <style>
+    html, body {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      overflow-x: hidden;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      position: relative;
+      font-size: 14px; 
+      padding-bottom: 70px;
+    }
+    
+    /* 画面振動エフェクト */
+    .screen-shake {
+      animation: screenShake 0.2s ease-in-out;
+    }
+    
+    @keyframes screenShake {
+      0%, 100% { transform: translate(0, 0); }
+      25% { transform: translate(-1px, -1px); }
+      50% { transform: translate(1px, 1px); }
+      75% { transform: translate(-1px, 1px); }
+    }
+    
+    /* コンボ表示 */
+    .combo-display {
+      position: fixed;
+      top: 20%;
+      right: 20px;
+      background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 20px;
+      font-weight: 900;
+      font-size: 1.1rem;
+      box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+      transform: scale(0);
+      animation: comboPopIn 0.3s ease-out forwards;
+      z-index: 1000;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+    }
+    
+    @keyframes comboPopIn {
+      0% { transform: scale(0) rotate(-90deg); }
+      50% { transform: scale(1.1) rotate(0deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+    
+    .particle {
+      position: absolute;
+      background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) scale(1); opacity: 0.5; }
+      50% { transform: translateY(-20px) scale(1.2); opacity: 1; }
+    }
+    
+    /* 強化されたタイトル */
+    .main-title {
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #ffd93d, #ff6b6b);
+      background-size: 400% 400%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: titleGradient 3s ease-in-out infinite;
+      text-shadow: 0 0 20px rgba(255,255,255,0.6);
+      font-weight: 900;
+      letter-spacing: 2px;
+    }
+    
+    @keyframes titleGradient {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    
+    /* スコア表示の強化 */
+    .score-display {
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #ffd93d);
+      background-size: 400% 400%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: scoreGlow 2s ease-in-out infinite;
+      font-weight: 900;
+      text-shadow: 0 0 25px rgba(255,255,255,0.8);
+      transition: all 0.3s ease;
+    }
+    
+    @keyframes scoreGlow {
+      0%, 100% { 
+        background-position: 0% 50%; 
+        filter: brightness(1);
+      }
+      50% { 
+        background-position: 100% 50%; 
+        filter: brightness(1.2);
+      }
+    }
+    
+    .score-display.score-pulse {
+      animation: scorePulse 0.4s ease-out;
+    }
+    
+    @keyframes scorePulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    
+    /* 適度なサイズのメインボタン */
+    .mega-click-btn {
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #ffd93d);
+      background-size: 300% 300%;
+      border: none;
+      border-radius: 25px;
+      padding: 20px 40px;
+      font-size: 18px;
+      font-weight: 900;
+      color: white;
+      cursor: pointer;
+      transform: scale(1);
+      transition: all 0.2s ease;
+      box-shadow: 0 8px 25px rgba(255, 107, 107, 0.5);
+      position: relative;
+      overflow: hidden;
+      font-family: inherit;
+      animation: buttonGlow 2s ease-in-out infinite;
+      border: 3px solid rgba(255, 255, 255, 0.4);
+      letter-spacing: 1px;
+      width: 85%;
+      max-width: 320px;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    
+    @keyframes buttonGlow {
+      0%, 100% { 
+        background-position: 0% 50%; 
+        box-shadow: 0 8px 25px rgba(255, 107, 107, 0.5);
+      }
+      50% { 
+        background-position: 100% 50%; 
+        box-shadow: 0 12px 35px rgba(255, 107, 107, 0.7);
+      }
+    }
+    
+    .mega-click-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 15px 40px rgba(255, 107, 107, 0.7);
+    }
+    
+    .mega-click-btn:active {
+      transform: scale(0.95);
+      animation: buttonPress 0.1s ease-out;
+    }
+    
+    @keyframes buttonPress {
+      0% { transform: scale(0.95); }
+      50% { transform: scale(0.9); }
+      100% { transform: scale(0.95); }
+    }
+    
+    .mega-click-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255,255,255,0.4);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+    
+    .mega-click-btn.clicked::before {
+      width: 400px;
+      height: 400px;
+    }
+    
+    /* 強化されたパーティクル */
+    .power-particle {
+      position: absolute;
+      background: radial-gradient(circle, #ffd93d 0%, #ff6b6b 50%, transparent 100%);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: powerFloat 1.2s ease-out forwards;
+    }
+    
+    @keyframes powerFloat {
+      0% {
+        transform: translate(0, 0) scale(0.5);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--dx), var(--dy)) scale(1.3);
+        opacity: 0;
+      }
+    }
+    
+    .factory-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.15));
+      backdrop-filter: blur(12px);
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 20px;
+      padding: 18px;
+      margin: 8px;
+      transform: translateY(30px);
+      opacity: 0;
+      animation: slideInUp 1s ease forwards;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.15);
+    }
+    
+    @keyframes slideInUp {
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .fever-mode .score-display {
+      animation: feverPulse 0.3s ease-in-out infinite;
+      color: #ff4757 !important;
+    }
+    
+    @keyframes feverPulse {
+      0%, 100% { transform: scale(1); filter: brightness(1); }
+      50% { transform: scale(1.08); filter: brightness(1.3); }
+    }
+    
+    /* 爆発エフェクトの強化 */
+    .explosion {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, #ffd93d, #ff6b6b, #4ecdc4, transparent);
+      border-radius: 50%;
+      animation: explode 0.7s ease-out forwards;
+      pointer-events: none;
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.7);
+    }
+    
+    @keyframes explode {
+      0% { 
+        transform: scale(0) rotate(0deg); 
+        opacity: 1; 
+      }
+      50% { 
+        transform: scale(1.2) rotate(180deg); 
+        opacity: 0.8; 
+      }
+      100% { 
+        transform: scale(2.5) rotate(360deg); 
+        opacity: 0; 
+      }
+    }
+    
+    .number-popup {
+      position: absolute;
+      font-size: 24px;
+      font-weight: 900;
+      color: #ffd93d;
+      pointer-events: none;
+      animation: numberFly 1.1s ease-out forwards;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+      font-family: inherit;
+      background: linear-gradient(45deg, #ffd93d, #ff6b6b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    @keyframes numberFly {
+      0% {
+        transform: translateY(0) scale(0.8);
+        opacity: 1;
+      }
+      50% {
+        transform: translateY(-35px) scale(1.1);
+        opacity: 0.9;
+      }
+      100% {
+        transform: translateY(-80px) scale(1.3);
+        opacity: 0;
+      }
+    }
+    
+    .timer-bar {
+      width: 100%;
+      max-width: 350px;
+      height: 12px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 10px 0;
+      border: 2px solid rgba(255,255,255,0.4);
+    }
+    
+    .timer-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #ffd93d);
+      background-size: 200% 100%;
+      animation: timerShine 2s ease-in-out infinite;
+      transition: width 1s linear;
+      border-radius: 4px;
+    }
+    
+    @keyframes timerShine {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    
+    .modal-enter {
+      animation: modalSlideIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+    
+    @keyframes modalSlideIn {
+      from {
+        transform: scale(0.5) rotate(-10deg);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+      }
+    }
+    
+    input, button {
+      font-size: 14px;
+      font-family: inherit;
+    }
+    
+    /* スターエフェクトの強化 */
+    .star {
+      position: absolute;
+      color: #ffd93d;
+      font-size: 20px;
+      pointer-events: none;
+      animation: starTwinkle 2.2s ease-in-out infinite;
+      text-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
+    }
+    
+    @keyframes starTwinkle {
+      0%, 100% {
+        opacity: 0.3;
+        transform: scale(0.5) rotate(0deg);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.2) rotate(180deg);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .main-title-class { font-size: 1.8rem; }
+      .score-display-class { font-size: 3rem; }
+      .mega-click-btn {
+        font-size: 16px;
+        padding: 18px 35px;
+        min-height: 70px;
+        max-width: 280px;
+      }
+      .factory-card { margin: 6px; padding: 15px; }
+      .factory-card .text-2xl { font-size: 1.4rem; }
+      .factory-card .text-base { font-size: 1rem; }
+      .factory-card .text-sm { font-size: 0.875rem; }
+
+      #puzzleModal h2 { font-size: 1.2rem; }
+      #puzzleModal #puzzleQ { font-size: 1rem; }
+      #puzzleModal #factorTags span { font-size: 0.8rem; padding: 6px 10px;}
+      #puzzleModal #puzzleMsg { font-size: 1rem; }
+      #puzzleModal .prime-btn {
+        padding: 8px 10px;
+        font-size: 13px;
+        min-width: 36px;
+      }
+      #puzzleModal #primeButtons {
+        gap: 0.5rem;
+      }
+      #puzzleModal .keypad-btn { font-size: 16px; padding: 12px 10px; }
+      #numericDisplay { font-size: 1.3rem; }
+      
+      .combo-display {
+        top: 15%;
+        right: 15px;
+        font-size: 1rem;
+        padding: 10px 14px;
+      }
+    }
+
+    .prime-btn {
+      padding: 10px 12px;
+      border-radius: 20px;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 42px;
+      text-align: center;
+      font-size: 14px;
+      background: linear-gradient(45deg, #4facfe, #00f2fe);
+      box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+    }
+    
+    .prime-btn:hover {
+      transform: scale(1.15);
+      box-shadow: 0 6px 20px rgba(79, 172, 254, 0.5);
+    }
+
+    .keypad-btn {
+        padding: 15px 12px;
+        border-radius: 12px;
+        font-weight: bold;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s ease-out;
+        text-align: center;
+        font-size: 18px;
+        background: linear-gradient(145deg, #5f72bd, #4a5a9b);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    
+    .keypad-btn:hover {
+        background: linear-gradient(145deg, #6b80cf, #5367ad);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+    }
+    
+    .keypad-btn:active {
+        transform: translateY(0) scale(0.95);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .keypad-btn.control {
+        background: linear-gradient(145deg, #d35d5d, #b04343);
+    }
+    
+    .keypad-btn.control:hover {
+        background: linear-gradient(145deg, #e06b6b, #c05151);
+    }
+    
+    #numericDisplay {
+        letter-spacing: 2px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+    }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col items-center pt-5 gap-4 relative">
+
+  <script>
+    // 強化されたパーティクル生成
+    for(let i = 0; i < 30; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      const size = Math.random() * 8 + 4;
+      particle.style.width = size + 'px';
+      particle.style.height = size + 'px';
+      particle.style.left = Math.random() * 100 + '%';
+      particle.style.top = Math.random() * 100 + '%';
+      particle.style.animationDelay = Math.random() * 6 + 's';
+      document.body.appendChild(particle);
+    }
+  </script>
+
+  <h1 id="mainTitleElement" class="text-3xl md:text-4xl font-bold main-title text-center px-3 main-title-class">🌟 MATH CLICKER 🌟</h1>
+  <div class="text-base md:text-lg text-white font-bold text-center">∞ 無限因数工場 ∞</div>
+
+  <div class="flex flex-wrap justify-center gap-2 items-center text-sm bg-white/20 backdrop-blur-md rounded-full px-4 py-2 border-2 border-white/30">
+    <span class="font-bold text-white">⏱️ 制限時間:</span>
+    <button class="timeBtn px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full font-bold hover:scale-110 transition-transform text-sm shadow-lg" data-min="1">1分</button>
+    <button class="timeBtn px-3 py-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-full font-bold hover:scale-110 transition-transform text-sm shadow-lg" data-min="3">3分</button>
+    <button class="timeBtn px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full font-bold hover:scale-110 transition-transform text-sm shadow-lg" data-min="5">5分</button>
+    <button class="timeBtn px-3 py-1 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full font-bold hover:scale-110 transition-transform text-sm shadow-lg" data-min="10">10分</button>
+  </div>
+
+  <div class="timer-bar">
+    <div id="timerFill" class="timer-fill" style="width: 100%"></div>
+  </div>
+  <span id="timerDisp" class="text-lg md:text-xl font-bold text-white"></span>
+
+  <div id="counter" class="text-5xl md:text-6xl font-bold score-display relative score-display-class">0</div>
+  <div id="cps" class="text-base md:text-lg text-white font-bold bg-black/20 rounded-full px-4 py-2 shadow-lg">🔥 自動 +0 / 秒</div>
+
+  <!-- 適度なサイズのメインボタン -->
+  <button id="clickBtn" class="mega-click-btn relative">
+    🚀 クリックして数を増やそう！ 🚀
+  </button>
+
+  <h2 class="text-xl md:text-2xl font-bold mt-6 text-white text-center">🏭 解放された工場 🏭</h2>
+  <div id="factoryList" class="space-y-2 text-white max-w-4xl w-full px-4"></div>
+
+  <!-- パズルモーダル -->
+  <div id="puzzleModal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
+    <div class="bg-gradient-to-br from-purple-600 via-pink-600 to-red-700 rounded-3xl p-6 w-full max-w-sm shadow-2xl modal-enter border-3 border-white/50 flex flex-col">
+      <h2 class="font-bold text-xl md:text-2xl mb-4 text-white text-center">🧮 MATH PUZZLE 🧮</h2>
+      <p id="puzzleQ" class="mb-4 text-white text-base md:text-lg font-bold text-center bg-black/30 rounded-xl p-3"></p>
+
+      <div id="textInputContainer" class="hidden">
+        <input id="puzzleInput" type="text" placeholder="答えを入力" class="w-full mb-3 px-3 py-2 border rounded-lg">
+      </div>
+
+      <div id="primeInputContainer" class="hidden mb-4">
+        <div id="primeButtons" class="flex flex-wrap justify-center gap-2 mb-3"></div>
+        <button id="clearFactorsBtn" class="w-full mt-2 px-4 py-2 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white rounded-full font-bold text-sm transition-all shadow-lg">クリア</button>
+      </div>
+
+      <div id="numericInputContainer" class="hidden mb-4 w-full max-w-[280px] mx-auto">
+        <div id="numericDisplay" class="mb-3 text-center text-white bg-black/30 rounded-xl p-3 text-2xl font-bold min-h-[50px]">-</div>
+        <div id="numericKeypad" class="grid grid-cols-3 gap-3"></div>
+      </div>
+
+      <div id="factorTagsContainer" class="mb-4">
+        <div id="factorTags" class="flex flex-wrap justify-center gap-2 min-h-[40px] bg-black/25 rounded-xl p-3"></div>
+      </div>
+
+      <button id="confirmBtn" class="w-full mt-auto px-4 py-3 bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 text-white rounded-full font-bold text-base transition-all hover:scale-105 shadow-lg">
+        🎯 確定して工場をゲット！
+      </button>
+      <p id="puzzleMsg" class="mt-3 font-bold text-center text-white text-base"></p>
+    </div>
+  </div>
+
+  <script>
+    /* ---------- 状態管理 ---------- */
+    let value = 0, cps = 0, clickPower = 1;
+    let fever = false, gameActive = true;
+    let totalTime = 0, currentTime = 0;
+    let comboCount = 0, lastClickTime = 0;
+    let comboTimer = null;
+
+    /* ---------- DOM参照 ---------- */
+    const counterEl = document.getElementById('counter');
+    const cpsDisp = document.getElementById('cps');
+    const clickBtn = document.getElementById('clickBtn');
+    const timerDisp = document.getElementById('timerDisp');
+    const timerFill = document.getElementById('timerFill');
+    const mainTitleElement = document.getElementById('mainTitleElement');
+
+    /* ---------- 改善されたクリアな音響システム ---------- */
+    let audioCtx;
+    
+    function initAudio() {
+      if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined') {
+        audioCtx = new (AudioContext || webkitAudioContext)();
+      }
+    }
+
+    document.body.addEventListener('click', () => {
+      if (!audioCtx) initAudio();
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    }, { once: true });
+
+    // クリアで心地よい音を生成する関数
+    function playTone(frequency, duration = 200, waveType = 'sine', volume = 0.1) {
+      if (!audioCtx || audioCtx.state !== 'running') return;
+      
+      try {
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+        oscillator.type = waveType;
+        
+        // スムーズなフェードイン・フェードアウト
+        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(volume, audioCtx.currentTime + 0.02);
+        gainNode.gain.linearRampToValueAtTime(volume * 0.7, audioCtx.currentTime + duration * 0.3 / 1000);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration / 1000);
+        
+        oscillator.start(audioCtx.currentTime);
+        oscillator.stop(audioCtx.currentTime + duration / 1000);
+      } catch(e) {
+        console.warn("Audio error:", e);
+      }
+    }
+
+    // 心地よいクリック音
+    function playClickSound() {
+      playTone(523, 120, 'sine', 0.08); // C5音
+    }
+
+    // コンボ音（メジャーペンタトニック）
+    function playComboSound(combo) {
+      const scale = [523, 587, 659, 784, 880]; // C, D, E, G, A
+      const noteIndex = Math.min(combo - 1, scale.length - 1);
+      const frequency = scale[noteIndex];
+      
+      playTone(frequency, 150, 'triangle', 0.12);
+      
+      // ハーモニー（3度上）
+      if (combo >= 3) {
+        setTimeout(() => {
+          playTone(frequency * 1.25, 100, 'sine', 0.06);
+        }, 30);
+      }
+    }
+
+    // 成功音のメロディー
+    function playSuccessSound() {
+      const melody = [523, 659, 784, 1047]; // C-E-G-C
+      melody.forEach((freq, index) => {
+        setTimeout(() => {
+          playTone(freq, 180, 'triangle', 0.1);
+        }, index * 150);
+      });
+    }
+
+    // フィーバー音
+    function playFeverSound() {
+      for (let i = 0; i < 5; i++) {
+        setTimeout(() => {
+          playTone(880 + i * 110, 100, 'square', 0.08);
+        }, i * 80);
+      }
+    }
+
+    // エラー音
+    function playErrorSound() {
+      playTone(220, 300, 'sawtooth', 0.06);
+    }
+
+    /* ---------- 強化されたエフェクト関数 ---------- */
+    function createExplosion(x, y) {
+      const explosion = document.createElement('div');
+      explosion.className = 'explosion';
+      explosion.style.left = (x - 40) + 'px';
+      explosion.style.top = (y - 40) + 'px';
+      document.body.appendChild(explosion);
+      
+      // 追加のパーティクル
+      for (let i = 0; i < 6; i++) {
+        setTimeout(() => createPowerParticle(x, y), i * 25);
+      }
+      
+      setTimeout(() => explosion.remove(), 700);
+    }
+
+    function createPowerParticle(x, y) {
+      const particle = document.createElement('div');
+      particle.className = 'power-particle';
+      const size = Math.random() * 12 + 8;
+      particle.style.width = size + 'px';
+      particle.style.height = size + 'px';
+      particle.style.left = x + 'px';
+      particle.style.top = y + 'px';
+      
+      const dx = (Math.random() - 0.5) * 150;
+      const dy = (Math.random() - 0.5) * 150;
+      particle.style.setProperty('--dx', dx + 'px');
+      particle.style.setProperty('--dy', dy + 'px');
+      
+      document.body.appendChild(particle);
+      setTimeout(() => particle.remove(), 1200);
+    }
+
+    function createNumberPopup(x, y, num, isCombo = false) {
+      const popup = document.createElement('div');
+      popup.className = 'number-popup';
+      
+      if (isCombo) {
+        popup.textContent = `COMBO x${comboCount}! +${num.toLocaleString()}`;
+        popup.style.fontSize = '28px';
+      } else {
+        popup.textContent = '+' + num.toLocaleString();
+      }
+      
+      popup.style.left = (x + Math.floor(Math.random() * 30 - 15)) + 'px';
+      popup.style.top = (y + Math.floor(Math.random() * 15 - 5)) + 'px';
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 1100);
+    }
+
+    function createStars(count = 6) {
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          const star = document.createElement('div');
+          star.className = 'star';
+          star.textContent = ['⭐', '✨', '🌟', '💫'][Math.floor(Math.random() * 4)];
+          star.style.left = Math.random() * window.innerWidth + 'px';
+          star.style.top = Math.random() * window.innerHeight + 'px';
+          star.style.fontSize = (Math.random() * 10 + 15) + 'px';
+          document.body.appendChild(star);
+          setTimeout(() => star.remove(), 2200);
+        }, i * (Math.random() * 80 + 60));
+      }
+    }
+
+    // コンボ表示
+    function showCombo(combo) {
+      const existingCombo = document.querySelector('.combo-display');
+      if (existingCombo) existingCombo.remove();
+      
+      const comboEl = document.createElement('div');
+      comboEl.className = 'combo-display';
+      comboEl.innerHTML = `
+        <div>🔥 COMBO 🔥</div>
+        <div style="font-size: 1.3em; margin-top: 3px;">x${combo}</div>
+      `;
+      document.body.appendChild(comboEl);
+      
+      setTimeout(() => comboEl.remove(), 1800);
+    }
+
+    // 画面振動エフェクト
+    function shakeScreen() {
+      document.body.classList.add('screen-shake');
+      setTimeout(() => document.body.classList.remove('screen-shake'), 200);
+    }
+
+    /* ---------- 表示更新 ---------- */
+    function render() {
+      counterEl.classList.add('score-pulse');
+      setTimeout(() => counterEl.classList.remove('score-pulse'), 400);
+      
+      counterEl.textContent = value.toLocaleString();
+      cpsDisp.textContent = `🔥 自動 +${cps.toLocaleString()}/秒`;
+    }
+
+    /* ---------- コンボシステム ---------- */
+    function handleClick(e) {
+      if (!gameActive) return;
+      
+      const currentTime = Date.now();
+      
+      // コンボ判定（1秒以内の連続クリック）
+      if (currentTime - lastClickTime < 1000) {
+        comboCount++;
+      } else {
+        comboCount = 1;
+      }
+      
+      lastClickTime = currentTime;
+      
+      // コンボタイマーリセット
+      if (comboTimer) clearTimeout(comboTimer);
+      comboTimer = setTimeout(() => {
+        comboCount = 0;
+      }, 1000);
+      
+      // エフェクト
+      clickBtn.classList.add('clicked');
+      setTimeout(() => clickBtn.classList.remove('clicked'), 600);
+      
+      createExplosion(e.clientX, e.clientY);
+      
+      // コンボボーナス計算
+      let bonusMultiplier = 1;
+      if (comboCount >= 3) {
+        bonusMultiplier = Math.min(comboCount * 0.5, 4); // 最大4倍まで
+        showCombo(comboCount);
+        shakeScreen();
+      }
+      
+      const earnedPoints = Math.floor(clickPower * bonusMultiplier);
+      
+      createNumberPopup(e.clientX, e.clientY, earnedPoints, comboCount >= 3);
+      
+      // 改善された音響フィードバック
+      if (comboCount >= 3) {
+        playComboSound(comboCount);
+      } else {
+        playClickSound();
+      }
+      
+      value += earnedPoints;
+      
+      // 高コンボ時の追加エフェクト
+      if (comboCount >= 5) {
+        createStars(comboCount);
+      }
+      if (comboCount >= 8) {
+        feverMode(3);
+      }
+      
+      checkUnlocks();
+      render();
+    }
+
+    /* ---------- 手動クリック ---------- */
+    clickBtn.onclick = handleClick;
+
+    /* ---------- 自動加算ループ ---------- */
+    let loop = setInterval(() => {
+      if (!gameActive) return;
+      value += cps;
+      checkUnlocks();
+      render();
+    }, 1000);
+
+    /* ---------- 問題生成（変更なし） ---------- */
+    function generateProblem(type, difficulty) {
+      switch(type) {
+        case 'factorize': return generateFactorizeProblem(difficulty);
+        case 'gcd': return generateGcdProblem(difficulty);
+        case 'lcm': return generateLcmProblem(difficulty);
+      }
+    }
+
+    function generateFactorizeProblem(difficulty) {
+      const targets = {
+        1: [12, 18, 20, 28, 30], 2: [36, 42, 48, 54, 60],
+        3: [72, 84, 90, 96, 100], 4: [120, 132, 144, 150, 156]
+      };
+      const targetList = targets[difficulty] || targets[1];
+      const target = targetList[Math.floor(Math.random() * targetList.length)];
+      let n = target;
+      let factors = [];
+      const primesToTest = [2, 3, 5, 7, 11, 13, 17, 19];
+      for(let p of primesToTest) {
+        while(n % p === 0) {
+          factors.push(p);
+          n /= p;
+        }
+        if(n === 1) break;
+      }
+      if (n > 1) factors.push(n);
+      factors.sort((a,b) => a-b);
+      return {
+        q: `${target} を素因数分解せよ`,
+        ans: factors.join('×'),
+        type: 'factorize',
+        raw_ans: factors
+      };
+    }
+
+    function generateGcdProblem(difficulty) {
+      const pairs = {
+        1: [[12, 18], [15, 20], [14, 21]], 2: [[24, 36], [30, 45], [28, 42]],
+        3: [[48, 72], [60, 90], [56, 84]], 4: [[96, 144], [120, 180], [112, 168]]
+      };
+      const pairList = pairs[difficulty] || pairs[1];
+      const [a, b] = pairList[Math.floor(Math.random() * pairList.length)];
+      function gcd(x, y) {
+        while(y) {
+          let t = y;
+          y = x % y;
+          x = t;
+        }
+        return x;
+      }
+      const answer = gcd(a,b);
+      return {
+        q: `${a} と ${b} の最大公約数は？`,
+        ans: answer.toString(),
+        type: 'gcd'
+      };
+    }
+
+    function generateLcmProblem(difficulty) {
+      const pairs = {
+        1: [[4, 6], [6, 9], [8, 12]], 2: [[12, 18], [15, 20], [14, 21]],
+        3: [[24, 36], [30, 45], [28, 42]], 4: [[48, 72], [60, 90], [56, 84]]
+      };
+      const pairList = pairs[difficulty] || pairs[1];
+      const [a, b] = pairList[Math.floor(Math.random() * pairList.length)];
+      function gcd(x, y) {
+        while(y) {
+          let t = y;
+          y = x % y;
+          x = t;
+        }
+        return x;
+      }
+      function lcm(x, y) {
+        return (x*y) / gcd(x,y);
+      }
+      const answer = lcm(a,b);
+      return {
+        q: `${a} と ${b} の最小公倍数は？`,
+        ans: answer.toString(),
+        type: 'lcm'
+      };
+    }
+
+    /* ---------- 工場データ（変更なし） ---------- */
+    const factories = [
+      {th:30, name:'×2 ロボットベルトコンベア', problemType:'factorize', difficulty:1, gain:2, clickBoost:1, unlocked:false, shown:false, emoji:'🤖'},
+      {th:200, name:'×3 プラズマ蒸着炉', problemType:'gcd', difficulty:1, gain:10, clickBoost:1, unlocked:false, shown:false, emoji:'🔥'},
+      {th:1000, name:'×5 量子エネルギー粉砕機', problemType:'lcm', difficulty:1, gain:30, clickBoost:2, unlocked:false, shown:false, emoji:'⚡'},
+      {th:5000, name:'×7 宇宙超合金炉', problemType:'factorize', difficulty:2, gain:100, clickBoost:3, unlocked:false, shown:false, emoji:'🌟'},
+      {th:20000, name:'×11 銀河系工場', problemType:'gcd', difficulty:2, gain:500, clickBoost:5, unlocked:false, shown:false, emoji:'🚀'},
+      {th:100000, name:'×13 ダイヤモンド次元炉', problemType:'lcm', difficulty:2, gain:2000, clickBoost:10, unlocked:false, shown:false, emoji:'💎'},
+      {th:500000, name:'×17 反物質ジェネレーター', problemType:'factorize', difficulty:3, gain:10000, clickBoost:25, unlocked:false, shown:false, emoji:'🌌'},
+      {th:2000000, name:'×19 時空連続体リアクター', problemType:'gcd', difficulty:3, gain:50000, clickBoost:50, unlocked:false, shown:false, emoji:'🌀'},
+      {th:10000000, name:'×23 多次元マニホールド', problemType:'lcm', difficulty:4, gain:250000, clickBoost:100, unlocked:false, shown:false, emoji:'💠'},
+      {th:50000000, name:'×29 無限調和エンジン', problemType:'factorize', difficulty:4, gain:1000000, clickBoost:200, unlocked:false, shown:false, emoji:'♾️'}
+    ];
+
+    /* ---------- パズル関連 ---------- */
+    const modal = document.getElementById('puzzleModal');
+    const qEl = document.getElementById('puzzleQ');
+    const factorTagsDiv = document.getElementById('factorTags');
+    const factorTagsContainer = document.getElementById('factorTagsContainer');
+    const textInputContainer = document.getElementById('textInputContainer');
+    const primeInputContainer = document.getElementById('primeInputContainer');
+    const numericInputContainer = document.getElementById('numericInputContainer');
+    const numericDisplay = document.getElementById('numericDisplay');
+    const numericKeypadDiv = document.getElementById('numericKeypad');
+    const primeButtonsDiv = document.getElementById('primeButtons');
+    const clearFactorsBtn = document.getElementById('clearFactorsBtn');
+    const confBtn = document.getElementById('confirmBtn');
+    const msgEl = document.getElementById('puzzleMsg');
+
+    let currentFactory = null, enteredFactors = [], currentNumericInput = "", currentProblem = null;
+    const PRIME_NUMBERS = [2, 3, 5, 7, 11, 13];
+
+    function openPuzzle(f) {
+      currentFactory = f;
+      enteredFactors = [];
+      currentNumericInput = "";
+      numericDisplay.textContent = '-';
+      renderTags();
+      msgEl.textContent = '';
+      
+      currentProblem = generateProblem(f.problemType, f.difficulty);
+      qEl.textContent = currentProblem.q;
+      
+      textInputContainer.classList.add('hidden');
+      primeInputContainer.classList.add('hidden');
+      numericInputContainer.classList.add('hidden');
+      factorTagsContainer.classList.add('hidden');
+
+      if (currentProblem.type === 'factorize') {
+        primeInputContainer.classList.remove('hidden');
+        factorTagsContainer.classList.remove('hidden');
+        generatePrimeButtons();
+      } else if (currentProblem.type === 'gcd' || currentProblem.type === 'lcm') {
+        numericInputContainer.classList.remove('hidden');
+        generateNumericKeypad();
+      } else {
+        textInputContainer.classList.remove('hidden');
+      }
+      
+      modal.classList.remove('hidden');
+      playTone(600, 200, 'triangle', 0.08);
+    }
+
+    function generatePrimeButtons() {
+      primeButtonsDiv.innerHTML = '';
+      PRIME_NUMBERS.forEach(prime => {
+        const btn = document.createElement('button');
+        btn.textContent = prime;
+        btn.className = 'prime-btn';
+        btn.onclick = () => {
+          enteredFactors.push(prime);
+          renderTags();
+          playTone(400 + prime * 15, 80, 'triangle', 0.08);
+        };
+        primeButtonsDiv.appendChild(btn);
+      });
+    }
+
+    clearFactorsBtn.onclick = () => {
+      enteredFactors = [];
+      renderTags();
+      playTone(350, 100, 'square', 0.06);
+    };
+
+    function generateNumericKeypad() {
+      numericKeypadDiv.innerHTML = '';
+      const buttons = ['7', '8', '9', '4', '5', '6', '1', '2', '3', 'C', '0', '⌫'];
+      buttons.forEach(char => {
+        const btn = document.createElement('button');
+        btn.textContent = char;
+        btn.className = 'keypad-btn';
+        if (char === 'C' || char === '⌫') btn.classList.add('control');
+        btn.onclick = () => {
+          if (char >= '0' && char <= '9') {
+            if (currentNumericInput.length < 4) currentNumericInput += char;
+          } else if (char === '⌫') {
+            currentNumericInput = currentNumericInput.slice(0, -1);
+          } else if (char === 'C') {
+            currentNumericInput = "";
+          }
+          numericDisplay.textContent = currentNumericInput || '-';
+          
+          if (char === 'C' || char === '⌫') {
+            playTone(300, 80, 'square', 0.06);
+          } else {
+            playTone(500 + (parseInt(char,10)||0) * 20, 70, 'sine', 0.06);
+          }
+        };
+        numericKeypadDiv.appendChild(btn);
+      });
+    }
+
+    function renderTags() {
+      factorTagsDiv.innerHTML = '';
+      if (currentProblem && currentProblem.type === 'factorize') {
+        enteredFactors.sort((a,b) => a-b).forEach((n,i) => {
+          const tag = document.createElement('span');
+          tag.textContent = n;
+          tag.title = 'クリックで削除';
+          tag.className = 'px-3 py-1.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full text-sm cursor-pointer font-bold hover:scale-110 transition-transform shadow-lg';
+          tag.onclick = () => {
+            enteredFactors.splice(i,1);
+            renderTags();
+            playTone(380, 80, 'square', 0.06);
+          };
+          factorTagsDiv.appendChild(tag);
+        });
+      }
+    }
+
+    confBtn.onclick = () => {
+      let isCorrect = false;
+      if(currentProblem.type === 'factorize') {
+        if(!enteredFactors.length) {
+          alert('素数を入力してください');
+          playErrorSound();
+          return;
+        }
+        const userAnswer = [...enteredFactors].sort((a,b)=>a-b).join('×');
+        isCorrect = userAnswer === currentProblem.ans;
+      } else if (currentProblem.type === 'gcd' || currentProblem.type === 'lcm') {
+        if(currentNumericInput === "") {
+          alert('数字を入力してください');
+          playErrorSound();
+          return;
+        }
+        isCorrect = currentNumericInput === currentProblem.ans;
+      }
+      
+      if(isCorrect) {
+        modal.classList.add('hidden');
+        currentFactory.unlocked = true;
+        currentFactory.shown = false;
+        cps += currentFactory.gain;
+        clickPower += currentFactory.clickBoost;
+        addFactoryToList(currentFactory);
+        feverMode(5);
+        createStars(12);
+        shakeScreen();
+        playSuccessSound();
+      } else {
+        msgEl.textContent = '❌ 不正解…もう一度チャレンジ！ ❌';
+        msgEl.style.color = '#ff4757';
+        playErrorSound();
+        setTimeout(() => msgEl.textContent = '', 1800);
+      }
+    };
+
+    /* ---------- 工場リスト & アンロック ---------- */
+    function addFactoryToList(f) {
+      const card = document.createElement('div');
+      card.className = 'factory-card';
+      card.innerHTML = `
+        <div class="text-center">
+          <div class="text-3xl mb-2">${f.emoji}</div>
+          <div class="text-lg font-bold text-white mb-2">✅ ${f.name}</div>
+          <div class="text-base text-yellow-300">🔥 +${f.gain.toLocaleString()}/秒 | 💪 クリック+${f.clickBoost.toLocaleString()}</div>
+        </div>
+      `;
+      document.getElementById('factoryList').appendChild(card);
+    }
+
+    function checkUnlocks() {
+      factories.forEach(f => {
+        if (!f.unlocked && !f.shown && value >= f.th) {
+          f.shown = true;
+          createStars(6);
+          playTone(700, 250, 'triangle', 0.1);
+          setTimeout(() => openPuzzle(f), 300);
+        }
+      });
+    }
+
+    /* ---------- フィーバーモード ---------- */
+    function feverMode(sec = 8) {
+      if (fever || !gameActive) return;
+      fever = true;
+      const originalClick = clickPower, originalCps = cps;
+      const feverMultiplier = 5;
+      clickPower *= feverMultiplier;
+      cps *= feverMultiplier;
+      document.body.classList.add('fever-mode');
+      
+      playFeverSound();
+      createStars(15);
+      shakeScreen();
+      
+      setTimeout(() => {
+        clickPower = originalClick;
+        cps = originalCps;
+        document.body.classList.remove('fever-mode');
+        fever = false;
+      }, sec * 1000);
+    }
+
+    /* ---------- 制限時間ボタン ---------- */
+    document.querySelectorAll('.timeBtn').forEach(btn => {
+      btn.onclick = () => {
+        if (!gameActive && totalTime > 0) {
+          alert("ゲームが終了しています。再度プレイするにはページをリロードするか、タイトルをクリックしてリセットしてください。");
+          return;
+        }
+        if (totalTime > 0 && currentTime > 0 && currentTime < totalTime) {
+          if (!confirm("タイマーが作動中です。新しい時間にリセットしますか？")) return;
+        }
+        const minutes = Number(btn.dataset.min);
+        totalTime = minutes * 60;
+        currentTime = totalTime;
+        if (timerId) clearInterval(timerId);
+        startTimer(totalTime);
+        playTone(600, 150, 'square', 0.08);
+        gameActive = true;
+        clickBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+        if (!loop) {
+          loop = setInterval(() => {
+            if (!gameActive) return;
+            value += cps;
+            checkUnlocks();
+            render();
+          }, 1000);
+        }
+      };
+    });
+
+    /* ---------- タイマー管理 ---------- */
+    let timerId = null, endTime = Infinity;
+
+    function startTimer(seconds) {
+      endTime = Date.now() + seconds * 1000;
+      updateTimer();
+      timerId = setInterval(updateTimer, 1000);
+    }
+
+    function updateTimer() {
+      const timeLeft = endTime - Date.now();
+      if (timeLeft <= 0) {
+        timerDisp.textContent = '⏰ TIME UP! ⏰';
+        timerFill.style.width = '0%';
+        stopGame();
+      } else {
+        const seconds = Math.floor(timeLeft / 1000);
+        const minutes = Math.floor(seconds / 60);
+        timerDisp.textContent = `⏰ ${String(minutes).padStart(2,'0')}:${String(seconds % 60).padStart(2,'0')}`;
+        const percentage = Math.max(0, (timeLeft / 1000) / totalTime * 100);
+        timerFill.style.width = percentage + '%';
+        if (percentage < 20) {
+          timerFill.style.background = 'linear-gradient(90deg, #ff4757, #ff3742)';
+        }
+      }
+    }
+
+    /* ---------- ゲーム停止 ---------- */
+    function stopGame() {
+      gameActive = false;
+      clearInterval(timerId);
+      clickBtn.classList.add('opacity-40', 'cursor-not-allowed');
+      setTimeout(() => {
+        alert(`🎉 ゲーム終了！\n最終スコア: ${value.toLocaleString()} ポイント\n\n素晴らしい数学力です！🌟\n\nもう一度プレイするには、制限時間ボタンを押すか、タイトルをクリックしてリセットしてください。`);
+      }, 500);
+    }
+
+    /* ---------- ゲームリセット機能 ---------- */
+    function resetGameConfirm() {
+      if (confirm("ゲームをリセットしてもよろしいですか？\nスコアや解放した工場は全て初期化されます。")) {
+        resetGameLogic();
+      }
+    }
+
+    function resetGameLogic() {
+      value = 0; cps = 0; clickPower = 1; fever = false; gameActive = true;
+      comboCount = 0; lastClickTime = 0;
+      if (timerId) clearInterval(timerId);
+      timerId = null; totalTime = 0; currentTime = 0; endTime = Infinity;
+      timerDisp.textContent = ''; timerFill.style.width = '100%';
+      timerFill.style.background = 'linear-gradient(90deg, #ff6b6b, #4ecdc4, #ffd93d)';
+      factories.forEach(f => { f.unlocked = false; f.shown = false; });
+      document.getElementById('factoryList').innerHTML = '';
+      if (!modal.classList.contains('hidden')) modal.classList.add('hidden');
+      enteredFactors = []; currentNumericInput = ""; msgEl.textContent = '';
+      render();
+      clickBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+      alert('ゲームがリセットされました。新しく制限時間を設定して開始してください。');
+      playTone(400, 200, 'triangle', 0.08);
+    }
+
+    if (mainTitleElement) {
+      mainTitleElement.addEventListener('click', resetGameConfirm);
+    }
+
+    /* ---------- 初期描画 ---------- */
+    render();
+
+    // 初回訪問時のウェルカムメッセージ
+    if (!localStorage.getItem('mathClickerVisited')) {
+      setTimeout(() => {
+        if (gameActive && value === 0 && totalTime === 0) {
+          alert('🌟 MATH CLICKERへようこそ！🌟\n\nクリックして数を増やし、\n数学パズルを解いて工場をアンロックしよう！\n\n連続タップでコンボボーナス発動！\nまずは画面上部のボタンから制限時間を設定してゲームスタート！🚀');
+          localStorage.setItem('mathClickerVisited', 'true');
+        }
+      }, 800);
+    }
+  </script>
+</body>
+</html>
